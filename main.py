@@ -14,25 +14,28 @@ def generate_response():
     user_input = st.session_state.user_input
     if user_input:
         st.session_state['conversation_history'].append(f"User: {user_input}")
-        st.session_state.user_input = ""
+        st.session_state.user_input = "" 
 
         response_placeholder = st.empty()
         with response_placeholder.container():
-            st.write(f"User: {user_input}")
-            st.write("Bot: ...")
+            st.markdown(f"<div style='background-color: #dfefff; color: black; padding: 8px; border-radius: 5px; margin-bottom: 5px;'>**User**: {user_input}</div>", unsafe_allow_html=True)
+            st.markdown("<div style='background-color: #f4f4f4; color: black; padding: 8px; border-radius: 5px; margin-bottom: 5px;'>**Bot**: ...</div>", unsafe_allow_html=True)
 
         with st.spinner("Generating response..."):
             response = llm.stream(user_input, stop=['<|eot_id|>'])
-            full_response = "".join(response) 
-            response_placeholder.empty()  # Clear the placeholder
+            full_response = "".join(response)
+            response_placeholder.empty()  
             st.session_state['conversation_history'].append(f"Bot: {full_response}")
 
+st.markdown("### Conversation History")
 for message in st.session_state['conversation_history']:
-    st.markdown(f"{message}")
+    if message.startswith("User:"):
+        st.markdown(f"<div style='background-color: #8caaee; color: black; padding: 8px; border-radius: 5px; margin-bottom: 5px;'>{message}</div>", unsafe_allow_html=True)
+    else:
+        st.markdown(f"<div style='background-color: #303446; color: white; padding: 8px; border-radius: 5px; margin-bottom: 5px;'>{message}</div>", unsafe_allow_html=True)
 
-user_input = st.text_area("Enter your prompt:", value=st.session_state.user_input, key="user_input")
+st.text_input("Enter your prompt:", value=st.session_state.user_input, key="user_input")
 
-if st.button("Generate", on_click=generate_response):
-    pass
+st.button("Generate", on_click=generate_response)
 
 st.empty()
